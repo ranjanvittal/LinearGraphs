@@ -10,6 +10,7 @@ class Node{
 public:
     int id;
     int extension;
+    int sat_id;
 
     //Should be the last attribute
     int edge[1];
@@ -23,14 +24,26 @@ public:
     Vector graph;
     int cellsize;
     bool undirected;
+    int node_count;
+
+    Vector* sat;
+    int sat_rows;
 
 
-
-    Tree(bool undir = false, int dd = DEFAULT_DEGREE){
+    Tree(int hcount, int sizes[], int dd = DEFAULT_DEGREE, bool undir = false) {
         default_degree = dd;
         cellsize = sizeof(Node) + (default_degree - 1) * sizeof (int);
         graph.Initialize(cellsize);
         undirected = undir;
+        node_count = 0;
+
+        sat_rows = hcount;
+        sat = (Vector*)malloc(sizeof(Vector)*hcount);
+
+        register int i;
+        for(i = 0; i < hcount; i++) {
+            sat[i].Initialize(sizes[i]);
+        }
     }
 
 
@@ -39,27 +52,55 @@ public:
         register int i;
         for (i = 0; i < graph.length; i++){
             Node* n = Access(Node*, graph, i);
-            printf ("\nCell %d\tNode %d\tNext %d\tEdges", i, n->id, n->extension);
+            printf ("\nCell %d\tNode %d\tNext %d\tSatData %d\tEdges", i, n->id, n->extension, n->sat_id);
 
             register int j;
             for (j=0; j < default_degree; j++){
                 printf (" %d ", n->edge[j]);
             }
         }
+
         printf ("\n\n");
     }
 
+    void * GetDataRow(int id, int sat_row) {
+        register Node* n = Access(Node*, graph, id);
+        return Access(void*, sat[sat_row], n->sat_id);
+    }
 
-    int AddNode (int nid = -1){
+    void ** GetData(int id, void** ptrs) {
+        register int i;
+        if(ptrs == NULL) {
+            ptrs = (void**) malloc(sizeof(void*)*sat_rows);
+        }
+
+        for(i = 0; i < sat_rows; i++) {
+            ptrs[i] = GetDataRow(id, i);
+        }
+
+        return (void**) ptrs;
+    }
+
+    int AddNode (Node* nParent = NULL){
         register int id = graph.Extend() - 1;
         register Node* n = Access (Node *, graph, id);
 
-        if(nid == -1)
+        if(nParent == NULL){
             n->id = id;
-        else
-            n->id = nid;
+            n->sat_id = node_count++;
+
+            register int i;
+            for(i = 0; i < sat_rows; i++) {
+                sat[i].Extend();
+            }
+        }
+        else{
+            n->id = nParent->id;
+            n->sat_id = nParent->sat_id;
+        }
 
         n->extension = -1;
+
 
         register int i;
         for (i = 0; i < default_degree; i++){
@@ -99,7 +140,7 @@ public:
                 }
             }
             else {
-                register int new_extension = AddNode(id1);
+                register int new_extension = AddNode(n1);
                 n1e = Access(Node*, graph, new_extension);
                 n1e->extension = n1->extension;
                 n1->extension = new_extension;
