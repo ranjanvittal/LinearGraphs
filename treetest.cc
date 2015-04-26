@@ -1,6 +1,7 @@
 #include "tree.h"
 
 #include <iostream>
+#include <stdio.h>
 
 using namespace std;
 
@@ -32,10 +33,18 @@ public:
 };
 
 
+int compare (int a, int b, void* map){
+    if (a == b) return 0;
+
+    if (a > b) return 1;
+    else return -1;
+}
+
+
 int main() {
     int sizes[] = {sizeof(C), sizeof(B)};
 
-    Tree t(2, sizes, 1, true);
+    Tree t(2, sizes, 2, true);
 
     printf ("Vector = %d x %d\n", t.graph.cellsize, t.graph.capacity);
 
@@ -49,8 +58,28 @@ int main() {
     t.AddEdge(c, b);
     //t.Print();
     t.AddEdge(a, c);
+    int e;
+    int f;
+
 
     d = t.AddNode();
+    e = t.AddNode();
+    f = t.AddNode();
+
+    t.AddEdge(a, d);
+    t.AddEdge(b, d);
+    t.AddEdge(c, d);
+
+    t.AddEdge(a, f);
+    t.AddEdge(b, f);
+    t.AddEdge(c, f);
+    t.AddEdge(e, f);
+    t.AddEdge(a, e);
+
+    t.AddEdge(b, e);
+    t.AddEdge(c, e);
+
+    t.AddEdge(e, d);
 
     C *a1, *b1, *c1, *d1;
 
@@ -93,9 +122,11 @@ int main() {
     c2 = (B*)t.GetDataRow(c, 1);
     d2 = (B*)t.GetDataRow(d, 1);
 
-    cout << "Row 2 = " << a2->b << " " << b2->b << " " << c2->b << " " << d2->b << " ";
+    cout << "\nRow 2 = " << a2->b << " " << b2->b << " " << c2->b << " " << d2->b << " ";
 
 
+    t.Print();
+    t.Sort(compare, NULL);
     t.Print();
 
 

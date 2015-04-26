@@ -6,8 +6,8 @@
 #define DEFAULT_DEGREE 3
 
 
-class Node{
-public:
+
+struct Node {
     int id;
     int extension;
     int sat_id;
@@ -18,151 +18,144 @@ public:
 
 
 
+
+
 class Tree{
+
 public:
-    int default_degree;
+
+    /*
+    Tree Constructor taking parameters as :
+        hcount = Number of hierarchies
+        sizes = Array with sizes of each hierarchy
+        dd = Default degree for optimum construction
+        undir = Is the graph undirected?
+    */
+    Tree(int hcount, int sizes[], int dd = DEFAULT_DEGREE, bool undir = false);
+
+
+
+
+    /*
+    GetDataRow
+        Returns the data of a node corresponding to a class hierarchy
+
+        Parameters
+            node_id = ID of the node whose data you want
+            sat_row = Index of the class hierarchy whose data you want
+    */
+    void * GetDataRow(int node_id, int sat_row);
+
+
+
+
+    /*
+    GetDataRow
+        Returns all data of a node in the form of an array of pointers.
+
+        Parameters
+            node_id = ID of the node whose data you want
+            ptrs = Array of pointers appropriately sized. If this is NULL,
+                   then an array is allocated by GetData
+    */
+    void ** GetData(int node_id, void** ptrs);
+
+
+
+
+    /*
+    AddNode
+        Adds a node to the graph
+
+    */
+    int AddNode ();
+
+
+
+
+    /*
+    AddEdge
+        Adds an edge to the graph
+
+        Parameters
+            node_id1 = First node
+            node_id2 = Second node
+    */
+    void AddEdge (int node_id1, int node_id2);
+
+
+    /*
+    AddEdge
+        Adds an edge to the graph
+
+        Parameters
+            node_id1 = First node
+            node_id2 = Second node
+    */
+    void AddDirectedEdge(int id1, int id2);
+
+
+
+    /*
+    IsNeighbour
+        Checks if two nodes are neighbours
+
+        Parameters
+            node_id1 = First node
+            node_id2 = Second node
+    */
+    bool IsNeighbour(int node_id1, int node_id2);
+
+
+    /*
+    Print
+        Used for development, testing and design purposes.
+
+        We use the output of this to contemplate what further
+        improvements can be inducted into the project.
+
+    */
+    void Print();
+
+    /*
+        Sort
+    */
+    void Sort(int (*compare) (int node1, int node2, void* map), void* map);
+
+
+
+    //The vector storing nodes
     Vector graph;
-    int cellsize;
+
+private:
+    //The default number of edges stored in each node
+    int default_degree;
+
+
+
+    //Whether the graph is undirected
     bool undirected;
+
+    //Number of nodes in the graph so far
     int node_count;
 
+    //Array of vectors to store satellite data
     Vector* sat;
+
+    //Number of class hierarchies to be stored as satellite data
     int sat_rows;
 
+    //Helper function
+    int AddNodePrivate (Node* nParent);
 
-    Tree(int hcount, int sizes[], int dd = DEFAULT_DEGREE, bool undir = false) {
-        default_degree = dd;
-        cellsize = sizeof(Node) + (default_degree - 1) * sizeof (int);
-        graph.Initialize(cellsize);
-        undirected = undir;
-        node_count = 0;
+    //Sort Helper
+    int* main_cells;
 
-        sat_rows = hcount;
-        sat = (Vector*)malloc(sizeof(Vector)*hcount);
+    Node* tempnode;
 
-        register int i;
-        for(i = 0; i < hcount; i++) {
-            sat[i].Initialize(sizes[i]);
-        }
-    }
-
-
-    void Print(){
-        printf ("\n\n");
-        register int i;
-        for (i = 0; i < graph.length; i++){
-            Node* n = Access(Node*, graph, i);
-            printf ("\nCell %d\tNode %d\tNext %d\tSatData %d\tEdges", i, n->id, n->extension, n->sat_id);
-
-            register int j;
-            for (j=0; j < default_degree; j++){
-                printf (" %d ", n->edge[j]);
-            }
-        }
-
-        printf ("\n\n");
-    }
-
-    void * GetDataRow(int id, int sat_row) {
-        register Node* n = Access(Node*, graph, id);
-        return Access(void*, sat[sat_row], n->sat_id);
-    }
-
-    void ** GetData(int id, void** ptrs) {
-        register int i;
-        if(ptrs == NULL) {
-            ptrs = (void**) malloc(sizeof(void*)*sat_rows);
-        }
-
-        for(i = 0; i < sat_rows; i++) {
-            ptrs[i] = GetDataRow(id, i);
-        }
-
-        return (void**) ptrs;
-    }
-
-    int AddNode (Node* nParent = NULL){
-        register int id = graph.Extend() - 1;
-        register Node* n = Access (Node *, graph, id);
-
-        if(nParent == NULL){
-            n->id = id;
-            n->sat_id = node_count++;
-
-            register int i;
-            for(i = 0; i < sat_rows; i++) {
-                sat[i].Extend();
-            }
-        }
-        else{
-            n->id = nParent->id;
-            n->sat_id = nParent->sat_id;
-        }
-
-        n->extension = -1;
-
-
-        register int i;
-        for (i = 0; i < default_degree; i++){
-            n->edge[i] = -1;
-        }
-
-        return id;
-    }
-
-    void AddEdge (int id1, int id2) {
-        AddDirectedEdge(id1, id2);
-        if(undirected)
-            AddDirectedEdge(id2, id1);
-    }
-
-    void AddDirectedEdge(int id1, int id2) {
-        register Node* n1 = Access(Node *, graph, id1);
-        if(n1->edge[default_degree-1] == -1) {
-            register int i;
-            for( i = 0; i < default_degree; i++){
-                if(n1->edge[i] == -1) {
-                    n1->edge[i] = id2;
-                    break;
-                }
-            }
-
-        }
-        else {
-            register Node* n1e = Access(Node*, graph, n1->extension);
-            if(n1e->edge[default_degree-1] == -1) {
-                register int i;
-                for( i = 0; i < default_degree; i++){
-                    if(n1e->edge[i] == -1){
-                        n1e->edge[i] = id2;
-                        break;
-                    }
-                }
-            }
-            else {
-                register int new_extension = AddNode(n1);
-                n1e = Access(Node*, graph, new_extension);
-                n1e->extension = n1->extension;
-                n1->extension = new_extension;
-                n1e->edge[0] = id2;
-            }
-        }
-
-    }
-
-    bool IsNeighbour(int id1, int id2) {
-        register Node* n1 = Access(Node *, graph, id1);
-        register int i;
-        for( i = 0; i < default_degree; i ++ ) {
-            if(id2 == n1->edge[i])
-                return true;
-        }
-        register int extension = n1->extension;
-        if(n1->extension >= 0)
-            return IsNeighbour(extension, id2);
-        return false;
-    }
-
+    void SortPrivate(int (*compare) (int node1, int node2, void* map), void* map, int n, int start);
+    int Partition(int n, int start, int (*compare) (int node1, int node2, void* map), void* map);
+    void Swap( int a, int b);
 };
 
 
