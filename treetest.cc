@@ -57,14 +57,31 @@ int main() {
     //t.Print();
     t.AddEdge(c, b);
     //t.Print();
-    t.AddEdge(a, c);
+
+
+    //t.AddEdge(a, c);
+
+
     int e;
-    int f;
+    int f, g;
+
+
 
 
     d = t.AddNode();
     e = t.AddNode();
     f = t.AddNode();
+    int z;
+
+    g = t.AddNode();
+
+    t.AddEdge (b, d);
+    t.AddEdge (a, e);
+    t.AddEdge (f, e);
+    t.AddEdge (g, e);
+
+
+    /*
 
     t.AddEdge(a, d);
     t.AddEdge(b, d);
@@ -80,6 +97,11 @@ int main() {
     t.AddEdge(c, e);
 
     t.AddEdge(e, d);
+
+    int z;
+
+    z = t.AddNode();
+    t.AddEdge(b, z);
 
     C *a1, *b1, *c1, *d1;
 
@@ -124,9 +146,11 @@ int main() {
 
     cout << "\nRow 2 = " << a2->b << " " << b2->b << " " << c2->b << " " << d2->b << " ";
 
+    */
+
 
     t.Print();
-    t.Sort(compare, NULL);
+    t.DFSOptimizer (b);
     t.Print();
 
 

@@ -117,15 +117,38 @@ public:
     */
     void Print();
 
+
+
+
     /*
-        Sort
+        Sort based on comparion
+        *compare = Element comparator function that accepts arguments node1, node2, and a map
+                   (Note that third parameter must be there)
+
+        map = A map of comparison that is passed as-is to the compare function
+                   (pass NULL if this is unnecessary)
+
+        This is also the wrapper for SortPrivate function.
+
     */
     void Sort(int (*compare) (int node1, int node2, void* map), void* map);
 
 
-
     //The vector storing nodes
     Vector graph;
+
+    /*
+        Function to go through the nodes in a DFS manner and do previsit and postvisit
+        on the nodes.
+        Parameters :
+            node_id: Root node
+            previsit : Function executed on visiting the node.
+            postvisit: Function executed after traversing the subtree rooted at the node and returning to the parent
+
+    */
+    void DFS (int node_id, int (*previsit) (int node_id), void (*postvisit) (int node_id) );
+    int DFSOptimizer(int rootnode);
+
 
 private:
     //The default number of edges stored in each node
@@ -151,11 +174,20 @@ private:
     //Sort Helper
     int* main_cells;
 
+    // Used for swapping
     Node* tempnode;
 
+    // Private function used to sort based on comparison. More of a sort helper.
     void SortPrivate(int (*compare) (int node1, int node2, void* map), void* map, int n, int start);
+
+    /* Partitioning for Sorting */
     int Partition(int n, int start, int (*compare) (int node1, int node2, void* map), void* map);
+
+    /* Swapping two nodes by taking their node id's */
     void Swap( int a, int b);
+
+
+
 };
 
 

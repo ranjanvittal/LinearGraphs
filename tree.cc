@@ -15,9 +15,14 @@ using namespace std;
 
 static int* map;
 
+int CompareMap (int n1, int n2, void* vmap);
+int DFSPre(int id);
 
 
-void dummy(){
+
+
+
+void dummy(int n1){
     return;
 }
 
@@ -322,6 +327,11 @@ int Tree::Partition(int n, int start, int (*compare) (int node1, int node2, void
         result = (compare(currentid, pivotid, map) > 0);
         //result = (currentid > pivotid);
         result = result || (main_cells[currentelement] && (currentid == pivotid));
+
+        if ((main_cells[start + n - 1] && (currentid == pivotid))){
+            result = 0;
+        }
+
         result = result || (currentelement == start + n - 1);
 
         result = result || ((currentnode->edge[default_degree-1] == -1) && !main_cells[start + n - 1] && (currentid == pivotid));
@@ -377,9 +387,9 @@ void Tree::Swap( int a, int b){
 
 
 
-/*
 
-void Tree::DFS (int node_id, int (*previsit) (int node_id), void (*postvisit) (int node_id) ){
+
+void Tree::DFS (int node_id, int (*previsit) (int node_id1), void (*postvisit) (int node_id)){
     //Pre-visit
     if (previsit (node_id) == 0){
         return;
@@ -393,9 +403,14 @@ void Tree::DFS (int node_id, int (*previsit) (int node_id), void (*postvisit) (i
 
 
     while (1){
+        //Print();
+
         for (edge = 0; edge < default_degree; edge++){
             neighbour = currentcell->edge[edge];
-            DFSHelper (neighbour, previsit, postvisit);
+            //cerr << neighbour << endl;
+            if (neighbour != -1){
+                DFS (neighbour, previsit, postvisit);
+            }
         }
 
         if (currentcell->extension == -1){
@@ -415,15 +430,32 @@ int Tree::DFSOptimizer(int rootnode){
 
     DFS(rootnode, DFSPre, dummy);
 
-    Sort  (CompareMap, map)
+
+    /*
+    //Print Map
+    int i;
+    for (i = 0; i < graph.length; i++){
+        printf ("%d ", map[i]);
+    }
+    printf ("\n\n");
+    */
+
+
+    Sort  (CompareMap, map);
+
+    free(map);
+
+    return rootnode;
 }
 
 
 
-int Tree::DFSPre(int id){
+int DFSPre(int id){
+    //cerr << "DFSPre on node " << id << "\n";
+
     static int s = 0;
     if (map[id] == 0) {
-        map[id] = s++;
+        map[id] = ++s;
         return 1;
     }
     else {
@@ -432,9 +464,8 @@ int Tree::DFSPre(int id){
 }
 
 
-int Tree::CompareMap (int n1, int n2, void* vmap){
+int CompareMap (int n1, int n2, void* vmap){
     int* imap = (int*) vmap;
 
-    return (imap[n1] < imap[n2]);
+    return (((imap[n1] < imap[n2]) && (imap[n1] > 0)) || (imap[n2] == 0));
 }
-*/
