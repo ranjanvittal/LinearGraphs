@@ -186,8 +186,15 @@ private:
     /* Swapping two nodes by taking their node id's */
     void Swap( int a, int b);
 
+    /* Swapping two satellite by taking their node id's */
+    void SatSwap( int a, int b);
 
+    /* Partitioning for Sorting */
+    int SatPartition(int n, int start);
 
+    /* Sorting satellite data */
+    void SatSort();
+    void SatSortPrivate(int n, int start);
 };
 
 

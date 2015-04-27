@@ -14,6 +14,7 @@
 using namespace std;
 
 static int* map;
+int cellsize;
 
 int CompareMap (int n1, int n2, void* vmap);
 int DFSPre(int id);
@@ -31,19 +32,18 @@ void dummy(int n1){
 
 //int dd = DEFAULT_DEGREE, bool undir = false
 Tree::Tree(int hcount, int sizes[], int dd, bool undir) {
-    register int cellsize;
     default_degree = dd;
     cellsize = sizeof(Node) + (default_degree - 1) * sizeof (int);
     graph.Initialize(cellsize);
     undirected = undir;
     node_count = 0;
 
-    tempnode = (Node *) malloc (cellsize);
 
     sat_rows = hcount;
     sat = (Vector*)malloc(sizeof(Vector)*hcount);
 
     register int i;
+
     for(i = 0; i < hcount; i++) {
         sat[i].Initialize(sizes[i]);
     }
@@ -207,7 +207,11 @@ void Tree::Sort  (int (*compare) (int node1, int node2, void* map), void* map){
         main_cells[i] = (i == currentnode->id);
     }
 
+    tempnode = (Node *) malloc (cellsize);
+
     SortPrivate (compare, map, graph.length, 0);
+
+    free (tempnode);
 
     int* new_id = (int*) malloc (l * sizeof(int));
 
@@ -264,7 +268,7 @@ void Tree::Sort  (int (*compare) (int node1, int node2, void* map), void* map){
     free (main_cells);
     free (new_id);
 
-
+    SatSort();
 }
 
 
@@ -468,4 +472,149 @@ int CompareMap (int n1, int n2, void* vmap){
     int* imap = (int*) vmap;
 
     return (((imap[n1] < imap[n2]) && (imap[n1] > 0)) || (imap[n2] == 0));
+}
+
+
+
+
+void Tree::SatSort (){
+    int * tempmap;
+    tempmap = map;
+    map = (int*) malloc (node_count * sizeof(int));
+
+    register int i;
+    register Node * n;
+
+    for (i = 0; i < graph.length; i++){
+        n = Access(Node *, graph, i);
+        if (n->id == i){
+            map[n->sat_id] = i;
+        }
+    }
+
+    SatSortPrivate (node_count, 0);
+
+    free (map);
+    map = tempmap;
+
+    int satid;
+    for (i = 0; i < graph.length; i++){
+        n = Access(Node *, graph, i);
+        if (n->id == i){
+            satid = n->sat_id;
+
+            while (n->extension != -1){
+                n = Access(Node *, graph, n->extension);
+                n->sat_id = satid;
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+void Tree::SatSortPrivate(int n, int start){
+    //static int calls = 0;
+
+    //Print();
+
+    //cout << "Number of calls so far = " << calls++ << "\n";
+
+    if (n <= 1) {
+        return;
+    }
+    else {
+        int pivotindex = SatPartition (n, start);
+        //cout << "pivotIndex, n = " << pivotindex << ", " << n  << "\n";
+
+        //printf ("Calling first %d, %d\n", pivotindex, start);
+        SatSortPrivate (pivotindex - start, start);
+
+
+        //printf ("Calling second %d, %d\n", (n - pivotindex -1), start + pivotindex + 1);
+        SatSortPrivate ((n - (pivotindex - start) -1), pivotindex + 1);
+
+        //printf ("Out\n");
+        return;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+int Tree::SatPartition(int n, int start){
+    //SatSwap (start + (rand() % n), start + n -1);
+
+
+    int currentelement = start;
+    int pivotindex = start;
+
+    while (1){
+        if (map[currentelement] <= map[start + n - 1]){
+            //cerr << "Comparing " << currentid << " with pivot " << pivotid << "(currentelement " << currentelement << ") : " << result << "\n";
+
+            SatSwap (currentelement, pivotindex);
+
+            //cerr << "currentelement = " << currentelement << "\t limit = " << start + n - 1 << "\n";
+
+            if (currentelement == start + n - 1) {
+                //cerr << "\tAL HABIBI EE TU HAIL RUL MAN KI MANN\n";
+                return pivotindex;
+            }
+            //else cerr << "\tAL HABIBI EE TU HAIL RUL MAN KI MANN\n";
+            pivotindex++;
+        }
+        currentelement++;
+    }
+
+    return pivotindex;
+}
+
+
+
+
+
+
+
+void Tree::SatSwap( int a, int b){
+    if (a == b) return;
+
+    Node* n1 = Access(Node *, graph, map[a]);
+    Node* n2 = Access(Node *, graph, map[b]);
+    int temp;
+    int i;
+    temp = map[a];
+    map[a] = map[b];
+    map[b] = temp;
+    temp = n1->sat_id;
+    n1->sat_id = n2->sat_id;
+    n2->sat_id = temp;
+
+    void* s1;
+    void* s2;
+    void* tempsat;
+
+    for(i = 0; i < sat_rows; i++) {
+        int cellsize = sat[i].cellsize;
+        tempsat = malloc(cellsize);
+        s1 = Access(void *, sat[i], a);
+        s2 = Access(void *, sat[i], b);
+        memcpy (tempsat, s1, cellsize);
+        memcpy (s1, s2, cellsize);
+        memcpy (s2, tempsat, cellsize);
+
+        free(tempsat);
+    }
+
+    return;
 }
