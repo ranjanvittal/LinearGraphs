@@ -101,7 +101,6 @@ int Tree::AddNode (){
     n->sat_id = node_count;
     n->natural = node_count++;
     map_natural_to_node.push_back(id);
-    n->is_main = true;
 
     register int i;
     for(i = 0; i < sat_rows; i++) {
@@ -132,7 +131,6 @@ int Tree::AddNodePrivate (Node* nParent){
     n->id = pid;
     n->sat_id = sid;
     n->natural = natural;
-    n->is_main = false;
     n->extension = -1;
 
 
@@ -327,7 +325,7 @@ void Tree::SortPrivate(int (*compare) (int natural1, int natural2, void* map), v
 
 
 int Tree::Partition(int n, int start, int (*compare) (int node1, int node2, void* map), void* map){
-    //Swap (start + (rand() % n), start + n -1);
+    Swap (start + (rand() % n), start + n -1);
 
 
     int currentelement = start;
@@ -406,10 +404,10 @@ void Tree::Swap( int a, int b){
     main_cells[a] = main_cells[b];
     main_cells[b] = temp;
 
-    if(n1->is_main)
+    if(main_cells[a])
         map_natural_to_node[n1->natural] = a;
 
-    if(n2->is_main)
+    if(main_cells[b])
         map_natural_to_node[n2->natural] = b;
 
     return;
@@ -587,7 +585,7 @@ void Tree::SatSortPrivate(int n, int start){
 
 
 int Tree::SatPartition(int n, int start){
-    //SatSwap (start + (rand() % n), start + n -1);
+    SatSwap (start + (rand() % n), start + n -1);
 
 
     int currentelement = start;
