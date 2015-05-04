@@ -66,6 +66,11 @@ void Tree::Print(){
         }
     }
 
+    printf ("\n\nMap:");
+    for (i = 0; i < node_count; i++){
+        printf (" %2d", map_natural_to_node[i]);
+    }
+
     printf ("\n\n");
 }
 
@@ -402,10 +407,10 @@ void Tree::Swap( int a, int b){
     main_cells[b] = temp;
 
     if(n1->is_main)
-        map_natural_to_node[n1->natural] = b;
+        map_natural_to_node[n1->natural] = a;
 
     if(n2->is_main)
-        map_natural_to_node[n2->natural] = a;
+        map_natural_to_node[n2->natural] = b;
 
     return;
 }
