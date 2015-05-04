@@ -8,7 +8,7 @@
 
 #include "dynarray.h"
 
-void Cry(int condition, char* error = ""){
+void Cry(int condition,const char* error = ""){
         if (condition){
             fprintf (stderr, "ERROR: %s", error);
             exit(-1);

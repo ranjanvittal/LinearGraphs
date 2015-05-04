@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 
+
 using namespace std;
 
 static int* map;
@@ -57,7 +58,7 @@ void Tree::Print(){
     register int i;
     for (i = 0; i < graph.length; i++){
         Node* n = Access(Node*, graph, i);
-        printf ("\nCell %d\tNode %d\tNext %d\tSatData %d\tEdges", i, n->id, n->extension, n->sat_id);
+        printf ("\nCell %d\tNode %d\tNatr %d\tNext %2d\tSatData %d\tEdges", i, n->id, n->natural, n->extension, n->sat_id);
 
         register int j;
         for (j=0; j < default_degree; j++){
@@ -69,6 +70,7 @@ void Tree::Print(){
 }
 
 void * Tree::GetDataRow(int id, int sat_row) {
+    id = map_natural_to_node[id];
     register Node* n = Access(Node*, graph, id);
     return Access(void*, sat[sat_row], n->sat_id);
 }
@@ -91,7 +93,10 @@ int Tree::AddNode (){
     register Node* n = Access (Node *, graph, id);
 
     n->id = id;
-    n->sat_id = node_count++;
+    n->sat_id = node_count;
+    n->natural = node_count++;
+    map_natural_to_node.push_back(id);
+    n->is_main = true;
 
     register int i;
     for(i = 0; i < sat_rows; i++) {
@@ -104,22 +109,25 @@ int Tree::AddNode (){
         n->edge[i] = -1;
     }
 
-    return id;
+    return n->natural;
 }
 
 
 
 int Tree::AddNodePrivate (Node* nParent){
-    register int pid, sid;
+    register int pid, sid, natural;
     pid = nParent->id;
     sid = nParent->sat_id;
+    natural = nParent->natural;
 
     register int id = graph.Extend() - 1;
     register Node* n = Access (Node *, graph, id);
 
+
     n->id = pid;
     n->sat_id = sid;
-
+    n->natural = natural;
+    n->is_main = false;
     n->extension = -1;
 
 
@@ -132,6 +140,9 @@ int Tree::AddNodePrivate (Node* nParent){
 }
 
 void Tree::AddEdge (int id1, int id2) {
+    id1 = map_natural_to_node[id1];
+    id2 = map_natural_to_node[id2];
+
     AddDirectedEdge(id1, id2);
     if(undirected)
         AddDirectedEdge(id2, id1);
@@ -179,6 +190,9 @@ void Tree::AddDirectedEdge(int id1, int id2) {
 }
 
 bool Tree::IsNeighbour(int id1, int id2) {
+    id1 = map_natural_to_node[id1];
+    id2 = map_natural_to_node[id2];
+
     register Node* n1 = Access(Node *, graph, id1);
     register int i;
     for( i = 0; i < default_degree; i ++ ) {
@@ -192,7 +206,7 @@ bool Tree::IsNeighbour(int id1, int id2) {
 }
 
 
-void Tree::Sort  (int (*compare) (int node1, int node2, void* map), void* map){
+void Tree::Sort  (int (*compare) (int natural1, int natural2, void* map), void* map){
     register int l = graph.length;
     main_cells = (int*) malloc (l * sizeof(int));
 
@@ -272,7 +286,7 @@ void Tree::Sort  (int (*compare) (int node1, int node2, void* map), void* map){
 }
 
 
-void Tree::SortPrivate(int (*compare) (int node1, int node2, void* map), void* map, int n, int start){
+void Tree::SortPrivate(int (*compare) (int natural1, int natural2, void* map), void* map, int n, int start){
     static int calls = 0;
 
     //Print();
@@ -317,18 +331,23 @@ int Tree::Partition(int n, int start, int (*compare) (int node1, int node2, void
 
     register Node* currentnode;
     register int currentid;
+    int currentn;
 
     register Node* pivotnode = Access(Node *, graph, start + n-1);
+    int pivotn;
     int pivotid = pivotnode->id;
+    pivotn = pivotnode->natural;
 
     while (1){
         currentnode = Access(Node *, graph, currentelement);
         currentid = currentnode->id;
+        currentn = currentnode->natural;
 
         //If compare is 1, then currentid will go earlier in the array
         //cerr << "Current element = " << currentelement << " <= " << graph.length << "\n";
 
-        result = (compare(currentid, pivotid, map) > 0);
+
+        result = (compare(currentn, pivotn, map) > 0);
         //result = (currentid > pivotid);
         result = result || (main_cells[currentelement] && (currentid == pivotid));
 
@@ -339,10 +358,6 @@ int Tree::Partition(int n, int start, int (*compare) (int node1, int node2, void
         result = result || (currentelement == start + n - 1);
 
         result = result || ((currentnode->edge[default_degree-1] == -1) && !main_cells[start + n - 1] && (currentid == pivotid));
-
-
-
-
 
         if (result){
             //cerr << "Comparing " << currentid << " with pivot " << pivotid << "(currentelement " << currentelement << ") : " << result << "\n";
@@ -373,27 +388,40 @@ int Tree::Partition(int n, int start, int (*compare) (int node1, int node2, void
 void Tree::Swap( int a, int b){
     if (a == b) return;
 
-    Node* n1 = Access(Node *, graph, a);
-    Node* n2 = Access(Node *, graph, b);
+    register Node* n1 = Access(Node *, graph, a);
+    register Node* n2 = Access(Node *, graph, b);
 
     memcpy (tempnode, n1, graph.cellsize);
     memcpy (n1, n2, graph.cellsize);
     memcpy (n2, tempnode, graph.cellsize);
 
-    int temp;
+    register int temp;
+
     temp = main_cells[a];
     main_cells[a] = main_cells[b];
     main_cells[b] = temp;
+
+    if(n1->is_main)
+        map_natural_to_node[n1->natural] = b;
+
+    if(n2->is_main)
+        map_natural_to_node[n2->natural] = a;
 
     return;
 }
 
 
 
+void Tree::DFS(int node_id) {
+    node_id = map[node_id];
+    DFS (node_id, DFSPre, dummy);
+
+}
 
 
-
-void Tree::DFS (int node_id, int (*previsit) (int node_id1), void (*postvisit) (int node_id)){
+void Tree::DFS (int node_id, int (*previsit) (int node_id1), void (*postvisit) (int node_id), bool is_natural){
+    if(is_natural)
+        node_id = map_natural_to_node[node_id];
     //Pre-visit
     if (previsit (node_id) == 0){
         return;
@@ -413,7 +441,7 @@ void Tree::DFS (int node_id, int (*previsit) (int node_id1), void (*postvisit) (
             neighbour = currentcell->edge[edge];
             //cerr << neighbour << endl;
             if (neighbour != -1){
-                DFS (neighbour, previsit, postvisit);
+                DFS (neighbour, previsit, postvisit, false);
             }
         }
 
@@ -430,6 +458,7 @@ void Tree::DFS (int node_id, int (*previsit) (int node_id1), void (*postvisit) (
 
 
 int Tree::DFSOptimizer(int rootnode){
+
     map = (int* ) calloc (graph.length, sizeof(int));
 
     DFS(rootnode, DFSPre, dummy);
@@ -457,9 +486,11 @@ int Tree::DFSOptimizer(int rootnode){
 int DFSPre(int id){
     //cerr << "DFSPre on node " << id << "\n";
 
+
     static int s = 0;
     if (map[id] == 0) {
         map[id] = ++s;
+        // cout<<" , "<<id;
         return 1;
     }
     else {

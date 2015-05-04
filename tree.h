@@ -2,6 +2,8 @@
 #define LINEAR_TREE
 
 #include "dynarray.h"
+#include <vector>
+using namespace std;
 
 #define DEFAULT_DEGREE 3
 
@@ -11,6 +13,8 @@ struct Node {
     int id;
     int extension;
     int sat_id;
+    int natural;
+    bool is_main;
 
     //Should be the last attribute
     int edge[1];
@@ -146,7 +150,13 @@ public:
             postvisit: Function executed after traversing the subtree rooted at the node and returning to the parent
 
     */
-    void DFS (int node_id, int (*previsit) (int node_id), void (*postvisit) (int node_id) );
+    void DFS (int node_id, int (*previsit) (int node_id), void (*postvisit) (int node_id), bool is_natural = true );
+
+    /*
+    Small wrapper to the above DFS method.
+    */
+    void DFS(int node_id);
+
     int DFSOptimizer(int rootnode);
 
 
@@ -158,6 +168,8 @@ private:
 
     //Whether the graph is undirected
     bool undirected;
+
+    vector<int> map_natural_to_node;
 
     //Number of nodes in the graph so far
     int node_count;
