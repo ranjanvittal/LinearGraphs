@@ -413,9 +413,7 @@ void Tree::Swap( int a, int b){
 
 
 void Tree::DFS(int node_id) {
-    node_id = map[node_id];
     DFS (node_id, DFSPre, dummy);
-
 }
 
 
