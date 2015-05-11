@@ -415,23 +415,22 @@ void Tree::Swap( int a, int b){
 
 
 
-void Tree::DFS(int node_id) {
-    DFS (node_id, DFSPre, dummy);
-}
-
-
 void Tree::DFS (int node_id, int (*previsit) (int node_id1), void (*postvisit) (int node_id), bool is_natural){
     if(is_natural)
         node_id = map_natural_to_node[node_id];
-    //Pre-visit
-    if (previsit (node_id) == 0){
-        return;
-    }
+
 
     int currentindex = node_id;
     Node* currentcell = Access(Node *, graph, currentindex);
     register int edge;
     register int neighbour;
+
+    register int natural = currentcell->natural;
+
+    //Pre-visit
+    if (previsit (natural) == 0){
+        return;
+    }
 
 
 
@@ -454,7 +453,7 @@ void Tree::DFS (int node_id, int (*previsit) (int node_id1), void (*postvisit) (
         }
     }
 
-    postvisit(node_id);
+    postvisit(natural);
 }
 
 
