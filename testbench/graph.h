@@ -34,14 +34,16 @@ class graph
 		This map variable pointer holds the satellite data
 		pointer from each node as a integer.
 		*/
-		 void* pointer[TREE_SIZE];
+		// void* pointer[TREE_SIZE];
+		map<int, void*> pointer;
 
 
 		/*
 		This map variable type holds the type of
 		satellite data each node holding.
 		*/
-		int type[TREE_SIZE];
+		//int type[TREE_SIZE];
+		map<int, int> type;
 
 		/*
 		This is the flag to indicate whether the

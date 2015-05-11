@@ -353,7 +353,7 @@ void Time_Comparison(Tree& tree, graph& list){
     std::cout << "Normal Graph (Adjacency lists) :\t";
 	std::cout << (en - st)/1000000.0;
 	std::cout <<" seconds\n" << endl;
-	cout << val1 << endl;
+	//cout << val1 << endl;
 
 
 
@@ -377,7 +377,7 @@ void Time_Comparison(Tree& tree, graph& list){
     std::cout<<"Arrayed Tree Implementation of Graph :\t";
 	std::cout << (en - st)/1000000.0;
 	std::cout <<" seconds\n" << endl;
-	cout << ov << endl;
+	//cout << ov << endl;
 
 
 	#ifdef ADJ
@@ -425,7 +425,6 @@ int main()
 	/*
 	Test case 2:
 	*/
-	cout<< "\n\nTest case 2: With nodes having higher degrees\n";
 	/*
 	graph g1(true);
 	Tree t1(2, sizes, 2, true);
