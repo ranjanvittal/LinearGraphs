@@ -150,12 +150,11 @@ public:
             postvisit: Function executed after traversing the subtree rooted at the node and returning to the parent
 
     */
-    void DFS (int node_id, int (*previsit) (int node_id), void (*postvisit) (int node_id), bool is_natural = true );
+    void DFS (int node_id, int (*previsit) (Tree* t, int node_id), void (*postvisit) (Tree* t, int node_id), bool is_natural = true );
 
     /*
     Small wrapper to the above DFS method.
     */
-    void DFS(int node_id);
 
     int DFSOptimizer(int rootnode);
 

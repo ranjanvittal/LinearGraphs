@@ -5,18 +5,88 @@
 #include "satellite.h"
 #include <iostream>
 #include <ctime>
-#include <time.h>
+#include <sys/time.h>
 
 
 #include "parameters.h"
-
-
+int ov = 0;
+long long CURRENT_TIME() {
+    timeval tv;
+    gettimeofday(&tv, NULL);
+    long long current_time = tv.tv_usec + tv.tv_sec*1000000;
+    return current_time;
+}
 
 using namespace std;
 
 int maps[TREE_SIZE+3];
 
+void pre_set(int run_type, Tree t, void* to_set) {
+	if(run_type == 1)
+	{
+		A* node = (A*) to_set;
+		node->len = 100;
+		for(int i = 0; i < 100; i++)
+		{
+			node->a[i] = i;
+		}
+	}
 
+	else if(run_type == 2)
+	{
+		B* node = (B*) to_set;
+		node->len = 200;
+		for(int i = 0; i < 200; i++)
+		{
+			node->a[i] = i;
+		}
+
+	}
+
+	else if(run_type == 3)
+	{
+		C* node = (C*) to_set;
+		node->len = 300;
+		for(int i = 0; i < 300; i++)
+		{
+			node->a[i] = i;
+		}
+
+	}
+
+	else if(run_type == 4)
+	{
+		D* node = (D*) to_set;
+		node->len = 400;
+		for(int i = 0; i < 400; i++)
+		{
+			node->a[i] = i;
+		}
+
+	}
+
+	else if(run_type == 5)
+	{
+		E* node = (E*) to_set;
+		node->len = 500;
+		for(int i = 0; i < 500; i++)
+		{
+			node->a[i] = i;
+		}
+
+	}
+
+	else if(run_type == 6)
+	{
+		F* node = (F*) to_set;
+		node->len = 600;
+		for(int i = 0; i < 600; i++)
+		{
+			node->a[i] = i;
+		}
+
+	}
+}
 
 timespec TimeDifference(timespec start, timespec end)
 {
@@ -41,20 +111,86 @@ void initLinTreeDFS (){
 }
 
 
+void pre_visit(A* val, int id) {
+	int i;
+	// cout << id << endl;
+	for(i = 0; i < 100; i++) {
+		val->a[i] += 1;
+		ov++;
+	}
+}
 
-int pre_visit(int id){
+void pre_visit(B* val, int id) {
+	int i;
+	// cout << id << endl;
+	for(i = 0; i < 200; i++) {
+		val->a[i] += 1;
+		ov++;
+	}
+}
+
+void pre_visit(C* val, int id) {
+	int i;
+	// cout << id << endl;
+	for(i = 0; i < 300; i++) {
+		val->a[i] += 1;
+		ov++;
+	}
+}
+
+void pre_visit(D* val, int id) {
+	int i;
+	// cout << id << endl;
+	for(i = 0; i < 400; i++) {
+		val->a[i] += 1;
+		ov++;
+	}
+}
+
+void pre_visit(E* val, int id) {
+	int i;
+	// cout << id << endl;
+	for(i = 0; i < 500; i++) {
+		val->a[i] += 1;
+		ov++;
+	}
+}
+
+void pre_visit(F* val, int id) {
+	int i;
+	// cout << id << endl;
+	for(i = 0; i < 600; i++) {
+		val->a[i] += 1;
+		ov++;
+	}
+}
+
+int pre_visit(Tree* tree, int id){
 	static int count = 0;
 
     if (maps[id] == 0) {
 		//printf ("%d\n", ++count);
         maps[id] = 1;
+        int i;
+        A* val = (A*) tree->GetDataRow(id, 0);
+        switch(val->len) {
+        	case 100 : {pre_visit((A*) val, id); break;}
+        	case 200 : {pre_visit((B*) val, id); break;}
+        	case 300 : {pre_visit((C*) val, id); break;}
+        	case 400 : {pre_visit((D*) val, id); break;}
+        	case 500 : {pre_visit((E*) val, id); break;}
+        	case 600 : {pre_visit((F*) val, id); break;}
+        }
+
         return 1;
     }
     else return 0;
 }
 
 
-void dummy2(int n1){
+
+
+void dummy2(Tree* t, int n1){
     return;
 }
 
@@ -88,6 +224,8 @@ void GenerateTree (Tree& tree, graph& list){
 		#ifdef ADJ
         matrix.add_vertex(v,runtype);
 		#endif
+		void* val = tree.GetDataRow(v, 0);
+		pre_set(runtype, tree, val);
     }
 
 	int component[TREE_SIZE];
@@ -207,13 +345,15 @@ void Time_Comparison(Tree& tree, graph& list){
     Time Evaluation for adjacency lists implemenatation.
 
     */
-	clock_gettime(CLOCK_USED, &start);
+	long long st = CURRENT_TIME();
+	int val1;
     for(int i = 0;i<TIMES;i++)
-    	list.init_dfs();
-	clock_gettime(CLOCK_USED, &end);
+    	val1 = list.init_dfs();
+	long long en = CURRENT_TIME();
     std::cout << "Normal Graph (Adjacency lists) :\t";
-	std::cout << TimeDifference(start, end).tv_sec << "." << setfill('0') << TimeDifference(start, end).tv_nsec << setfill(' ');
+	std::cout << (en - st)/1000000.0;
 	std::cout <<" seconds\n" << endl;
+	cout << val1 << endl;
 
 
 
@@ -223,18 +363,21 @@ void Time_Comparison(Tree& tree, graph& list){
 
     */
 
-    tree.DFSOptimizer (0);
 
-	clock_gettime(CLOCK_USED, &start);
+
+
+    tree.DFSOptimizer (0);
+	st = CURRENT_TIME();
+
     for(int i = 0;i<TIMES;i++){
 		initLinTreeDFS();
     	tree.DFS (0, pre_visit, dummy2);
 	}
-	clock_gettime(CLOCK_USED, &end);
+	en = CURRENT_TIME();
     std::cout<<"Arrayed Tree Implementation of Graph :\t";
-	std::cout << TimeDifference(start, end).tv_sec << "." << setfill('0') << TimeDifference(start, end).tv_nsec << setfill(' ');
+	std::cout << (en - st)/1000000.0;
 	std::cout <<" seconds\n" << endl;
-
+	cout << ov << endl;
 
 
 	#ifdef ADJ
@@ -243,18 +386,18 @@ void Time_Comparison(Tree& tree, graph& list){
 	Time Evaluation for adjacency Matrix implemenatation.
 
 	*/
-	start  =  std::clock();
-	for(int i = 0;i<TIMES && 0;i++)
-		matrix.init_dfs();
-	duration  =  ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-	std::cout<<"Normal Graph (Adjacency Matrix):\t"<< duration <<" seconds\n";
+	// start  =  std::clock();
+	// for(int i = 0;i<TIMES && 0;i++)
+	// 	matrix.init_dfs();
+	// duration  =  ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+	// std::cout<<"Normal Graph (Adjacency Matrix):\t"<< duration <<" seconds\n";
 	#endif
 
 }
 
 int main()
 {
-	int sizes[2]  =  { sizeof(A), sizeof(B) };
+	int sizes[2]  =  { sizeof(F), sizeof(B) };
 	Tree tree(2, sizes, 2, true);
 	graph list(false);
 

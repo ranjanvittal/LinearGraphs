@@ -18,13 +18,13 @@ static int* map;
 int cellsize;
 
 int CompareMap (int n1, int n2, void* vmap);
-int DFSPre(int id);
+int DFSPre(Tree* t, int id);
 
 
 
 
 
-void dummy(int n1){
+void dummy(Tree* t, int n1){
     return;
 }
 
@@ -415,7 +415,7 @@ void Tree::Swap( int a, int b){
 
 
 
-void Tree::DFS (int node_id, int (*previsit) (int node_id1), void (*postvisit) (int node_id), bool is_natural){
+void Tree::DFS (int node_id, int (*previsit) (Tree* t, int node_id1), void (*postvisit) (Tree* t, int node_id), bool is_natural){
     if(is_natural)
         node_id = map_natural_to_node[node_id];
 
@@ -428,7 +428,7 @@ void Tree::DFS (int node_id, int (*previsit) (int node_id1), void (*postvisit) (
     register int natural = currentcell->natural;
 
     //Pre-visit
-    if (previsit (natural) == 0){
+    if (previsit (this, natural) == 0){
         return;
     }
 
@@ -453,7 +453,7 @@ void Tree::DFS (int node_id, int (*previsit) (int node_id1), void (*postvisit) (
         }
     }
 
-    postvisit(natural);
+    postvisit(this, natural);
 }
 
 
@@ -483,7 +483,7 @@ int Tree::DFSOptimizer(int rootnode){
 
 
 
-int DFSPre(int id){
+int DFSPre(Tree* t, int id){
     //cerr << "DFSPre on node " << id << "\n";
 
 

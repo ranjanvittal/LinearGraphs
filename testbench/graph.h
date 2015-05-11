@@ -21,7 +21,6 @@
 
 #include "parameters.h"
 using namespace std;
-
 	/*
 	Graph implementation using adjacency lists.
 	This is the class graph which holds the sattellite data pointer,
@@ -35,20 +34,21 @@ class graph
 		This map variable pointer holds the satellite data
 		pointer from each node as a integer.
 		*/
-		map <int, void*> pointer;
+		 void* pointer[TREE_SIZE];
 
 
 		/*
 		This map variable type holds the type of
 		satellite data each node holding.
 		*/
-		map <int, int> type;
+		int type[TREE_SIZE];
 
 		/*
 		This is the flag to indicate whether the
 		graph is directed or undirected.
 		*/
 		bool directed;
+		int gen;
 
 		//vector<vector<int> > a(r);
 
@@ -82,7 +82,7 @@ class graph
 		Parameters:
 				A bool variable which says whether the graph is directed or not.
 		*/
-		graph(bool dir);
+		graph(bool dir = true);
 
 		/*
 		This method is used to add nodes with node number and
@@ -105,7 +105,7 @@ class graph
 		unvisited before actually executing the dfs method on the graph.
 		This method will call the dfs method on all the unvisited nodes on the graph.
 		*/
-		void init_dfs();
+		int init_dfs();
 
 		/*
 		This method executes dfs algorithm on the given node.

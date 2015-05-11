@@ -83,7 +83,7 @@ class graphMat
 		Parameters:
 				A bool variable which says whether the graph is directed or not.
 		*/
-		graphMat(bool dir);
+		graphMat(bool dir = true);
 
 		/*
 		This method is used to add nodes with node number and

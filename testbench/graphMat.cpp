@@ -1,7 +1,7 @@
 #include "graphMat.h"
 #include "satellite.h"
 
-graphMat::graphMat(bool dir = true)
+graphMat::graphMat(bool dir)
 {
 	directed = dir;
 	num_nodes = 0;

@@ -2,10 +2,11 @@
 #include "satellite.h"
 
 
-graph::graph(bool dir = true)
+graph::graph(bool dir)
 {
 	directed = dir;
 	num_nodes = 0;
+	gen = 0;
 }
 
 
@@ -16,79 +17,79 @@ void graph::add_vertex(int num, int run_type)
 	if(run_type == 1)
 	{
 		A* node = new A();
-
+		node->len = 100;
 		for(int i = 0; i < node->len; i++)
 		{
 			node->a[i] = i;
 		}
 
 		pointer[num] =  node;
-		type.insert(make_pair(num, run_type));
+		type[num] = run_type;
 	}
 
 	else if(run_type == 2)
 	{
 		B* node = new B();
-
+		node->len = 200;
 		for(int i = 0; i < node->len; i++)
 		{
 			node->a[i] = i;
 		}
 
 		pointer[num] =  node;
-		type.insert(make_pair(num, run_type));
+		type[num] = run_type;
 	}
 
 	else if(run_type == 3)
 	{
 		C* node = new C();
-
+		node->len = 300;
 		for(int i = 0; i < node->len; i++)
 		{
 			node->a[i] = i;
 		}
 
 		pointer[num] =  node;
-		type.insert(make_pair(num, run_type));
+		type[num] = run_type;
 	}
 
 	else if(run_type == 4)
 	{
 		D* node = new D();
-
+		node->len = 400;
 		for(int i = 0; i < node->len; i++)
 		{
 			node->a[i] = i;
 		}
 
 		pointer[num] =  node;
-		type.insert(make_pair(num, run_type));
+		type[num] = run_type;
 	}
 
 	else if(run_type == 5)
 	{
 		E* node = new E();
-
+		node->len = 500;
 		for(int i = 0; i < node->len; i++)
 		{
 			node->a[i] = i;
 		}
 
 		pointer[num] =  node;
-		type.insert(make_pair(num, run_type));
+		type[num] = run_type;
 	}
 
 	else if(run_type == 6)
 	{
 		F* node = new F();
-
+		node->len = 600;
 		for(int i = 0; i < node->len; i++)
 		{
 			node->a[i] = i;
 		}
 
 		pointer[num] =  node;
-		type.insert(make_pair(num, run_type));
+		type[num] = run_type;
 	}
 }
 
@@ -119,14 +120,15 @@ void graph::dfs(int num)
 	//printf ("%d\n", ++blah);
 	//fflush (stdout);
 
-	/*
+
 	if(type[num] == 1)
 	{
 		// cout<<"Class A Vertex "<<num<<"\n";
 
 		for(int i =0 ;i < ((A*)pointer[num])->len ; i++)
 		{
-			// cout<<((A*)pointer[num])->a[i]<<" ";
+			((A*)pointer[num])->a[i] ++;
+			gen++;
 		}
 
 		// cout<<"\n\n";
@@ -138,7 +140,8 @@ void graph::dfs(int num)
 
 		for(int i =0 ;i < ((B*)pointer[num])->len ; i++)
 		{
-			// cout<<((B*)pointer[num])->a[i]<<" ";
+			((B*)pointer[num])->a[i] ++;
+			gen++;
 		}
 
 		// cout<<"\n\n";
@@ -150,7 +153,8 @@ void graph::dfs(int num)
 
 		for(int i =0 ;i < ((C*)pointer[num])->len ; i++)
 		{
-			// cout<<((C*)pointer[num])->a[i]<<" ";
+			((C*)pointer[num])->a[i] ++;
+			gen++;
 		}
 
 		// cout<<"\n\n";
@@ -162,7 +166,8 @@ void graph::dfs(int num)
 
 		for(int i =0 ;i < ((D*)pointer[num])->len ; i++)
 		{
-			// cout<<((D*)pointer[num])->a[i]<<" ";
+			((D*)pointer[num])->a[i] ++;
+			gen++;
 		}
 
 		// cout<<"\n\n";
@@ -174,7 +179,8 @@ void graph::dfs(int num)
 
 		for(int i =0 ;i < ((E*)pointer[num])->len ; i++)
 		{
-			// cout<<((E*)pointer[num])->a[i]<<" ";
+			((E*)pointer[num])->a[i] ++;
+			gen++;
 		}
 
 		// cout<<"\n\n";
@@ -186,12 +192,13 @@ void graph::dfs(int num)
 
 		for(int i =0 ;i < ((F*)pointer[num])->len ; i++)
 		{
-			// cout<<((F*)pointer[num])->a[i]<<" ";
+			((F*)pointer[num])->a[i] ++;
+			gen++;
 		}
 
 		// cout<<"\n\n";
 	}
-	*/
+
 
 	for(int i = 0; i < adj[num].size(); i++)
 	{
@@ -203,7 +210,7 @@ void graph::dfs(int num)
 }
 
 
-void graph::init_dfs()
+int graph::init_dfs()
 {
 	for(int i = 0; i < num_nodes; i++)
 	{
@@ -221,4 +228,5 @@ void graph::init_dfs()
 		}
 	}
 */
+	return gen;
 }
